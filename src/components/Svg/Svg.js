@@ -10,11 +10,17 @@ const duration = 600;
 
 class Svg extends React.Component {
     svgD3Instance = null;
+
     chartD3Instance = null;
+
     centerGroupD3Instance = null;
+
     lastTransform = null;
+
     treeData = null;
+
     depth = nodeHeight + 100;
+
     layouts = { treemap: null };
 
     constructor(props) {
@@ -23,18 +29,21 @@ class Svg extends React.Component {
         this.chartRef = React.createRef();
         this.centerGRef = React.createRef();
     }
+
     componentDidMount() {
         this.bindRefsToD3();
         this.setBackground();
         this.d3Draw();
     }
+
     bindRefsToD3 = () => {
         this.svgD3Instance = d3.select(this.svgRef.current);
         this.chartD3Instance = d3.select(this.chartRef.current);
         this.centerGroupD3Instance = d3.select(this.centerGRef.current);
     };
+
     setBackground = () => {
-        const zoom = d3.zoom().on("zoom", this.onZoom);
+        const zoom = d3.zoom().on('zoom', this.onZoom);
         const behaviors = { zoom };
         this.svgD3Instance.call(behaviors.zoom)
             .attr('cursor', 'move')
@@ -45,82 +54,62 @@ class Svg extends React.Component {
                 .translateTo(this.chartD3Instance, this.lastTransform.x, this.lastTransform.y);
         }
     };
-    d3Draw() {
-        this.layouts.treemap = d3.tree()
-            .size([this.props.width, this.props.height])
-            .nodeSize([nodeWidth + 100, nodeHeight + this.depth]);
 
-        const stratify = d3.stratify().id(d => d.id).parentId(d => d.manager === 0 ? undefined : d.manager);
-        this.rootNode = stratify(this.props.data);
-
-        this.rootNode.x0 = 0;
-        this.rootNode.y0 = 0;
-
-        const allNodes = this.layouts.treemap(this.rootNode).descendants();
-        allNodes.forEach(d => {
-            const orgRelation = {
-                directSubordinates: d.children ? d.children.length : 0,
-                totalSubordinates: d.descendants().length - 1
-            };
-            return { ...d.data, ...orgRelation };
-        });
-
-        this.d3Update(this.rootNode);
-    };
     d3Update = (source) => {
         this.treeData = this.layouts.treemap(this.rootNode);
         this.renderAndUpdateNodes(source);
         this.renderAndUpdateLinksBetweenNodes(source);
     };
+
     renderAndUpdateNodes = (source) => {
-        const nodes = this.treeData.descendants().map(d => {
+        const nodes = this.treeData.descendants().map((d) => {
             const borderColor = '#ccc';
-            const backgroundColor = 'rgba(51, 182, 208, 1)';
             return Object.assign(d, {
                 borderColor,
-                backgroundColor,
+                backgroundColor: 'rgba(51, 182, 208, 1)',
             });
         });
-        nodes.forEach(d => d.y = d.depth * this.depth);
+        nodes.forEach((d) => { d.y = d.depth * this.depth; });
 
         const nodesSelection = this.centerGroupD3Instance
             .selectAll('g.node')
-            .data(nodes, d => d.id);
+            .data(nodes, (d) => d.id);
 
         // Enter any new nodes at the parent's previous position.
         const nodeEnter = nodesSelection
             .enter()
             .append('g')
             .attr('class', 'node')
-            .attr("transform", d => "translate(" + source.x0 + "," + source.y0 + ")")
+            .attr('transform', () => `translate(${source.x0},${source.y0})`)
             .attr('cursor', 'pointer');
 
         // Add rectangle for the nodes
-        d3Utils.patternify(nodeEnter, { tag: 'rect', selector: 'node-rect', data: d => [d] })
+        d3Utils.patternify(nodeEnter, { tag: 'rect', selector: 'node-rect', data: (d) => [d] })
             .attr('width', nodeWidth)
             .attr('height', nodeHeight)
-            .style("fill", d => d._children ? "lightsteelblue" : "#fff");
+            .style('fill', (d) => (d._children ? 'lightsteelblue' : '#fff'));
 
         const foreignObject = d3Utils.patternify(
-            nodeEnter, { tag: 'foreignObject', selector: 'node-foreign-object', data: d => [d] })
+            nodeEnter, { tag: 'foreignObject', selector: 'node-foreign-object', data: (d) => [d] },
+        )
             .attr('width', nodeWidth)
             .attr('height', nodeHeight)
             .attr('x', -nodeWidth / 2)
             .attr('y', -nodeHeight / 2);
 
-        d3Utils.patternify(foreignObject, { tag: 'xhtml:div', selector: 'node-foreign-object-div', data: d => [d] })
-            .style('width', nodeWidth + 'px')
-            .style('height', nodeHeight + 'px')
+        d3Utils.patternify(foreignObject, { tag: 'xhtml:div', selector: 'node-foreign-object-div', data: (d) => [d] })
+            .style('width', `${nodeWidth}px`)
+            .style('height', `${nodeHeight}px`)
             .style('color', 'white')
-            .html(d => getTemplate(d.data));
+            .html((d) => getTemplate(d.data));
 
         // Node button circle group
-        const nodeButtonGroups = d3Utils.patternify(nodeEnter, { tag: 'g', selector: 'node-button-g', data: d => [d] })
+        const nodeButtonGroups = d3Utils.patternify(nodeEnter, { tag: 'g', selector: 'node-button-g', data: (d) => [d] })
             .on('click', this.onClick);
 
         // Add button circle
-        d3Utils.patternify(nodeButtonGroups, { tag: 'circle', selector: 'node-button-circle', data: d => [d] });
-        d3Utils.patternify(nodeButtonGroups, { tag: 'text', selector: 'node-button-text', data: d => [d] })
+        d3Utils.patternify(nodeButtonGroups, { tag: 'circle', selector: 'node-button-circle', data: (d) => [d] });
+        d3Utils.patternify(nodeButtonGroups, { tag: 'text', selector: 'node-button-text', data: (d) => [d] })
             .attr('pointer-events', 'none');
 
         const nodeUpdate = nodeEnter
@@ -131,29 +120,29 @@ class Svg extends React.Component {
             .transition()
             .attr('opacity', 0)
             .duration(duration)
-            .attr("transform", d => "translate(" + d.x + "," + d.y + ")")
+            .attr('transform', (d) => `translate(${d.x},${d.y})`)
             .attr('opacity', 1);
 
         nodeUpdate
             .select('.node-rect')
             .attr('x', -nodeWidth / 2)
             .attr('y', -nodeHeight / 2)
-            .attr('rx', d => d.data.borderRadius || 0)
+            .attr('rx', (d) => d.data.borderRadius || 0)
             .attr('stroke-width', 3)
             .attr('cursor', 'pointer')
-            .attr('stroke', d => d.borderColor)
-            .style("fill", d => d.backgroundColor);
+            .attr('stroke', (d) => d.borderColor)
+            .style('fill', (d) => d.backgroundColor);
 
         nodeUpdate
             .select('.node-button-g')
-            .attr('transform', d => `translate(0,${nodeHeight/2})`)
+            .attr('transform', () => `translate(0,${nodeHeight / 2})`);
 
         nodeUpdate
             .select('.node-button-circle')
             .attr('r', 16)
             .attr('stroke-width', 3)
             .attr('fill', backgroundColor)
-            .attr('stroke', d => d.borderColor);
+            .attr('stroke', (d) => d.borderColor);
 
         // Restyle texts
         nodeUpdate
@@ -161,8 +150,8 @@ class Svg extends React.Component {
             .attr('text-anchor', 'middle')
             .attr('alignment-baseline', 'middle')
             .attr('fill', '#2C3E50')
-            .attr('font-size', d => (d.children) ? 40 : 26)
-            .text(d => (d.children) ? '-' : '+');
+            .attr('font-size', (d) => ((d.children) ? 40 : 26))
+            .text((d) => ((d.children) ? '-' : '+'));
 
         // Remove any exiting nodes
         const nodeExitTransition = nodesSelection
@@ -170,8 +159,8 @@ class Svg extends React.Component {
             .attr('opacity', 1)
             .transition()
             .duration(duration)
-            .attr("transform", d => "translate(" + source.x + "," + source.y + ")")
-            .on('end', function () { d3.select(this).remove() })
+            .attr('transform', () => `translate(${source.x},${source.y})`)
+            .on('end', function end() { d3.select(this).remove(); })
             .attr('opacity', 0);
 
         // On exit reduce the node rects size to 0
@@ -183,25 +172,26 @@ class Svg extends React.Component {
             .attr('y', 0);
 
         // Store the old positions for transition.
-        nodes.forEach(d => {
+        nodes.forEach((d) => {
             d.x0 = d.x;
             d.y0 = d.y;
         });
     };
+
     renderAndUpdateLinksBetweenNodes = (source) => {
         const links = this.treeData.descendants().slice(1);
 
         const linkSelection = this.centerGroupD3Instance
             .selectAll('path.link')
-            .data(links, d => d.id);
+            .data(links, (d) => d.id);
 
         // Enter any new links at the parent's previous position.
         const linkEnter = linkSelection
             .enter()
-            .insert('path', "g")
-            .attr("class", "link")
+            .insert('path', 'g')
+            .attr('class', 'link')
             .attr('d', () => {
-                const o = { x: source.x0, y: source.y0 }
+                const o = { x: source.x0, y: source.y0 };
                 return d3Utils.getDiagonalPath(o, o);
             });
 
@@ -209,17 +199,15 @@ class Svg extends React.Component {
 
         // Styling links
         linkUpdate
-            .attr("fill", "none")
-            .attr("stroke-width", 2)
+            .attr('fill', 'none')
+            .attr('stroke-width', 2)
             .attr('stroke', '#ccc')
             .attr('stroke-dasharray', '');
 
         // Transition back to the parent element position
         linkUpdate.transition()
             .duration(duration)
-            .attr('d', function(d) {
-                return d3Utils.getDiagonalPath(d, d.parent);
-            });
+            .attr('d', (d) => d3Utils.getDiagonalPath(d, d.parent));
 
         // Remove any exiting links
         linkSelection
@@ -227,14 +215,16 @@ class Svg extends React.Component {
             .transition()
             .duration(duration)
             .attr('d', () => {
-                const o = {x: source.x, y: source.y };
+                const o = { x: source.x, y: source.y };
                 return d3Utils.getDiagonalPath(o, o);
             })
             .remove();
     };
+
     onClick = async (d) => {
+        const { onGetChildrenNode } = this.props;
         if (!d.isLeaf && d.children === undefined) {
-            const childrens = await this.props.onGetChildrenNode(d);
+            const childrens = await onGetChildrenNode(d);
             if (childrens && childrens.length > 0) {
                 d3Utils.addChildrensNode(d, childrens);
             } else {
@@ -245,16 +235,43 @@ class Svg extends React.Component {
         }
         this.d3Update(d);
     };
+
     onZoom = () => {
-        const transform = d3.event.transform;
+        const { transform } = d3.event;
         this.lastTransform = transform;
         this.chartD3Instance.attr('transform', transform);
     };
+
+    d3Draw() {
+        const { data, width, height } = this.props;
+        this.layouts.treemap = d3.tree()
+            .size([width, height])
+            .nodeSize([nodeWidth + 100, nodeHeight + this.depth]);
+
+        const stratify = d3.stratify().id((d) => d.id).parentId((d) => (d.manager === 0 ? undefined : d.manager));
+        this.rootNode = stratify(data);
+
+        this.rootNode.x0 = 0;
+        this.rootNode.y0 = 0;
+
+        const allNodes = this.layouts.treemap(this.rootNode).descendants();
+        allNodes.forEach((d) => {
+            const orgRelation = {
+                directSubordinates: d.children ? d.children.length : 0,
+                totalSubordinates: d.descendants().length - 1,
+            };
+            return { ...d.data, ...orgRelation };
+        });
+
+        this.d3Update(this.rootNode);
+    }
+
     render() {
+        const { centerX, initialZoom, width, height } = this.props;
         const chartTransform = `translate(${margins.left},${margins.top})`;
-        const centerTransform = `translate(${this.props.centerX},${nodeHeight/2}) scale(${this.props.initialZoom})`;
+        const centerTransform = `translate(${centerX},${nodeHeight / 2}) scale(${initialZoom})`;
         return (
-            <svg ref={this.svgRef} width={this.props.width} height={this.props.height}>
+            <svg ref={this.svgRef} width={width} height={height}>
                 <g ref={this.chartRef} transform={chartTransform}>
                     <g ref={this.centerGRef} transform={centerTransform} />
                 </g>
@@ -264,12 +281,12 @@ class Svg extends React.Component {
 }
 
 Svg.propTypes = {
-    width: PropTypes.number,
-    height: PropTypes.number,
-    centerX: PropTypes.number,
-    data: PropTypes.array,
-    onGetChildrenNode: PropTypes.func,
-    initialZoom: PropTypes.number,
-}
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    centerX: PropTypes.number.isRequired,
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    onGetChildrenNode: PropTypes.func.isRequired,
+    initialZoom: PropTypes.number.isRequired,
+};
 
 export default Svg;
