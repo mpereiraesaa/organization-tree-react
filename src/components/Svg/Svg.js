@@ -9,9 +9,9 @@ const backgroundColor = '#fafafa';
 const duration = 600;
 
 class Svg extends React.Component {
-    svg = null;
-    chart = null;
-    centerG = null;
+    svgD3Instance = null;
+    chartD3Instance = null;
+    centerGroupD3Instance = null;
     lastTransform = null;
     treeData = null;
     depth = nodeHeight + 100;
@@ -29,20 +29,20 @@ class Svg extends React.Component {
         this.d3Draw();
     }
     bindRefsToD3 = () => {
-        this.svg = d3.select(this.svgRef.current);
-        this.chart = d3.select(this.chartRef.current);
-        this.centerG = d3.select(this.centerGRef.current);
+        this.svgD3Instance = d3.select(this.svgRef.current);
+        this.chartD3Instance = d3.select(this.chartRef.current);
+        this.centerGroupD3Instance = d3.select(this.centerGRef.current);
     };
     setBackground = () => {
         const zoom = d3.zoom().on("zoom", this.onZoom);
         const behaviors = { zoom };
-        this.svg.call(behaviors.zoom)
+        this.svgD3Instance.call(behaviors.zoom)
             .attr('cursor', 'move')
             .style('background-color', backgroundColor);
 
         if (this.lastTransform) {
-            behaviors.zoom.scaleBy(this.chart, this.lastTransform.k)
-                .translateTo(this.chart, this.lastTransform.x, this.lastTransform.y);
+            behaviors.zoom.scaleBy(this.chartD3Instance, this.lastTransform.k)
+                .translateTo(this.chartD3Instance, this.lastTransform.x, this.lastTransform.y);
         }
     };
     d3Draw() {
@@ -65,12 +65,12 @@ class Svg extends React.Component {
             return { ...d.data, ...orgRelation };
         });
 
-        this.update(this.rootNode);
+        this.d3Update(this.rootNode);
     };
-    update = (source) => {
+    d3Update = (source) => {
         this.treeData = this.layouts.treemap(this.rootNode);
         this.renderAndUpdateNodes(source);
-        this.updateLinks(source);
+        this.renderAndUpdateLinksBetweenNodes(source);
     };
     renderAndUpdateNodes = (source) => {
         const nodes = this.treeData.descendants().map(d => {
@@ -83,7 +83,7 @@ class Svg extends React.Component {
         });
         nodes.forEach(d => d.y = d.depth * this.depth);
 
-        const nodesSelection = this.centerG
+        const nodesSelection = this.centerGroupD3Instance
             .selectAll('g.node')
             .data(nodes, d => d.id);
 
@@ -188,10 +188,10 @@ class Svg extends React.Component {
             d.y0 = d.y;
         });
     };
-    updateLinks = (source) => {
+    renderAndUpdateLinksBetweenNodes = (source) => {
         const links = this.treeData.descendants().slice(1);
 
-        const linkSelection = this.centerG
+        const linkSelection = this.centerGroupD3Instance
             .selectAll('path.link')
             .data(links, d => d.id);
 
@@ -243,12 +243,12 @@ class Svg extends React.Component {
         } else {
             d3Utils.toggleCollapse(d);
         }
-        this.update(d);
+        this.d3Update(d);
     };
     onZoom = () => {
         const transform = d3.event.transform;
         this.lastTransform = transform;
-        this.chart.attr('transform', transform);
+        this.chartD3Instance.attr('transform', transform);
     };
     render() {
         const chartTransform = `translate(${margins.left},${margins.top})`;
