@@ -1,4 +1,4 @@
-## d3 + react: Just an small hybrid approach.
+## d3 + react: Just an small hybrid approach to use an organizational tree structure.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
