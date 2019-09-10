@@ -1,4 +1,4 @@
-# A new implementation of a basic Hierarchy using Tree data structures with some small modifications using components fromm semantic-ui.
+# A simple UI implementation of a basic Hierarchy using Tree data structures with some small modifications using components fromm semantic-ui.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
