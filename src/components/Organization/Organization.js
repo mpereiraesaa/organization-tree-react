@@ -35,7 +35,7 @@ class Organization extends React.Component {
                     )}
                 <Employee
                     key={nestedView.id}
-                    isTopLevel={true}
+                    isTopLevel
                     onSubordinatesRender={this.renderSubordinates}
                     data={nestedView}
                     isProcessing={this.props.isProcessing}

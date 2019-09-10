@@ -1,11 +1,11 @@
 import React from 'react';
-import { Container, Grid, Loader } from 'semantic-ui-react';
+import { Container, Grid, Loader, Header } from 'semantic-ui-react';
 import treeService from '../../utils/tree';
 import { fetchData } from '../../utils/utils';
 import Organization from '../Organization/Organization';
 import './App.css';
 
-const maxNodesView = 6;
+const maxNodesView = 3;
 
 class App extends React.Component {
     constructor(props) {
@@ -87,6 +87,12 @@ class App extends React.Component {
                 <Grid>
                     <Grid.Row>
                         <Grid.Column>
+                            <Header as="h2">
+                              Big corp chart
+                                <Header.Subheader>
+                                Visualize the hierarchy inside this big corp by clicking members of this organization.
+                                </Header.Subheader>
+                            </Header>
                             {!isLoading && (
                                 <Organization
                                     nestedView={nestedView}
