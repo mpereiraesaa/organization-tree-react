@@ -53,7 +53,7 @@ class App extends React.Component {
 
     onNodeSelection = async (id) => {
         const { root, nestedView } = this.state;
-        const node = treeService.getNode(root, id);
+        const node = treeService.findNodeByBFS(root, id);
         const subordinatesAlreadyAdded = node.children && node.children.length > 0;
         let subordinates = subordinatesAlreadyAdded ? [...node.children] : [];
         let newRootNode = { ...root };

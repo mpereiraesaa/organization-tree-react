@@ -13,46 +13,36 @@ const treeService = {
         };
     },
     createTreeForView(root, maxDepth) {
-        const queue = [];
         const newTree = { ...root, depth: 1 };
-        queue.push(newTree);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.depth === maxDepth) {
-                if (current.children && current.children.length > 0) {
-                    current.stop = true;
+        return this.traverseEachByBFS(newTree, (node) => {
+            if (node.depth === maxDepth) {
+                if (node.children && node.children.length > 0) {
+                    node.stop = true;
                 }
-                current.children = null;
+                node.children = null;
             }
-            if (current.children) {
-                current.children = current.children.map((child) => ({ ...child, depth: current.depth + 1 }));
-                queue.push(...current.children);
+            if (node.children) {
+                node.children = node.children.map((child) => ({ ...child, depth: node.depth + 1 }));
             }
-        }
-        return newTree;
+        });
     },
     createTreeFromNodeForView(root, maxDepth, activeNode) {
-        const nodeInRoot = this.getNode(root, activeNode);
-        const queue = [];
+        const nodeInRoot = this.findNodeByBFS(root, activeNode);
         const newTree = { ...nodeInRoot, depth: nodeInRoot.depth >= maxDepth ? 1 : nodeInRoot.depth };
-        queue.push(newTree);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.depth === maxDepth) {
-                if (current.children && current.children.length > 0) {
-                    current.stop = true;
+        return this.traverseEachByBFS(newTree, (node) => {
+            if (node.depth === maxDepth) {
+                if (node.children && node.children.length > 0) {
+                    node.stop = true;
                 }
-                current.children = null;
+                node.children = null;
             }
-            if (current.children) {
-                current.children = current.children.map((child) => ({ ...child, depth: current.depth + 1 }));
-                queue.push(...current.children);
+            if (node.children) {
+                node.children = node.children.map((child) => ({ ...child, depth: node.depth + 1 }));
             }
-        }
-        return newTree;
+        });
     },
     toggleActiveNodeAtView(node, nodeId) {
-        return this.bfsTraversal(node, nodeId, (nodeFound) => { nodeFound.active = !nodeFound.active; });
+        return this.updateNodeByBFS(node, nodeId, (nodeFound) => { nodeFound.active = !nodeFound.active; });
     },
     getAncestorSubTree(node, root, maxDepth) {
         const realDepth = node.parent.depth + 1;
@@ -71,11 +61,8 @@ const treeService = {
         }
         return current;
     },
-    getNode(root, nodeId) {
-        return this.bfsTraversal(root, nodeId, (node) => node);
-    },
     addChildrenToNode(node, parentId, children) {
-        return this.bfsTraversal(node, parentId, (nodeFound) => {
+        return this.updateNodeByBFS(node, parentId, (nodeFound) => {
             if (!children || children.length === 0) {
                 nodeFound.leaf = true;
             } else {
@@ -84,7 +71,21 @@ const treeService = {
             }
         });
     },
-    bfsTraversal(node, id, callback) {
+    findNodeByBFS(root, id) {
+        const queue = [];
+        queue.push(root);
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (current.id === id) {
+                return current;
+            }
+            if (current.children) {
+                queue.push(...current.children);
+            }
+        }
+        return null;
+    },
+    updateNodeByBFS(node, id, callback) {
         const queue = [];
         const newNode = { ...node };
         queue.push(newNode);
@@ -95,6 +96,21 @@ const treeService = {
                     callback(current);
                 }
                 break;
+            }
+            if (current.children) {
+                queue.push(...current.children);
+            }
+        }
+        return newNode;
+    },
+    traverseEachByBFS(root, callback) {
+        const queue = [];
+        const newNode = { ...root };
+        queue.push(newNode);
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (typeof callback === 'function') {
+                callback(current);
             }
             if (current.children) {
                 queue.push(...current.children);
