@@ -5,7 +5,7 @@ import { fetchData } from '../../utils/utils';
 import Organization from '../Organization/Organization';
 import './App.css';
 
-const maxNodesView = 3;
+const maxNodesView = 8;
 
 class App extends React.Component {
     constructor(props) {

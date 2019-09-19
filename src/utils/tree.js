@@ -52,20 +52,7 @@ const treeService = {
         return newTree;
     },
     toggleActiveNodeAtView(node, nodeId) {
-        const queue = [];
-        const newNode = { ...node };
-        queue.push(newNode);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.id === nodeId) {
-                current.active = !current.active;
-                break;
-            }
-            if (current.children) {
-                queue.push(...current.children);
-            }
-        }
-        return newNode;
+        return this.bfsTraversal(node, nodeId, (nodeFound) => { nodeFound.active = !nodeFound.active; });
     },
     getAncestorSubTree(node, root, maxDepth) {
         const realDepth = node.parent.depth + 1;
@@ -85,36 +72,27 @@ const treeService = {
         return current;
     },
     getNode(root, nodeId) {
-        const queue = [];
-        let node = null;
-        queue.push(root);
-        if (nodeId === null || nodeId === undefined) {
-            return node;
-        }
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.id === nodeId) {
-                node = current;
-                break;
-            }
-            if (current.children) {
-                queue.push(...current.children);
-            }
-        }
-        return node;
+        return this.bfsTraversal(root, nodeId, (node) => node);
     },
     addChildrenToNode(node, parentId, children) {
+        return this.bfsTraversal(node, parentId, (nodeFound) => {
+            if (!children || children.length === 0) {
+                nodeFound.leaf = true;
+            } else {
+                const childs = children.map((child) => ({ ...child, parent: nodeFound, depth: nodeFound.depth + 1 }));
+                nodeFound.children = childs;
+            }
+        });
+    },
+    bfsTraversal(node, id, callback) {
         const queue = [];
         const newNode = { ...node };
         queue.push(newNode);
         while (queue.length > 0) {
             const current = queue.shift();
-            if (current.id === parentId) {
-                if (!children || children.length === 0) {
-                    current.leaf = true;
-                } else {
-                    const childs = children.map((child) => ({ ...child, parent: current, depth: current.depth + 1 }));
-                    current.children = childs;
+            if (current.id === id) {
+                if (typeof callback === 'function') {
+                    callback(current);
                 }
                 break;
             }
