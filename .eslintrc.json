@@ -5,6 +5,8 @@
         "airbnb"
     ],
     "rules": {
+        "lines-between-class-members": "off",
+        "max-classes-per-file": "off",
         "react/jsx-filename-extension": "off",
         "react/jsx-indent": [2, 4],
         "react/jsx-indent-props": [2, 4],

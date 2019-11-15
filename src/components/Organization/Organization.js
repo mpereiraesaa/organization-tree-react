@@ -5,41 +5,33 @@ import Employee from '../Employee/Employee';
 import './Organization.css';
 
 const Organization = (props) => {
-    const { tree, selectedNode, onNodeSelection, isProcessing } = props;
-    const onClick = (id) => {
-        onNodeSelection(id);
-    };
+    const { root, selectedNode, onSelectNode } = props;
     const renderSubordinates = (subordinates) => subordinates.map((subordinate) => (
         <Employee
-            key={subordinate.id}
+            key={subordinate.data.id}
             onSubordinatesRender={renderSubordinates}
-            isTopLevel={false}
             selectedNode={selectedNode}
-            isProcessing={isProcessing}
-            data={subordinate}
-            onClick={onClick}
+            node={subordinate}
+            onSelectNode={onSelectNode}
         />
     ));
     return (
         <div className="tree-container">
             <Employee
-                key={tree.id}
-                isTopLevel
+                key={root.id}
                 onSubordinatesRender={renderSubordinates}
-                data={tree}
-                isProcessing={isProcessing}
+                node={root}
                 selectedNode={selectedNode}
-                onClick={onClick}
+                onSelectNode={onSelectNode}
             />
         </div>
     );
 };
 
 Organization.propTypes = {
-    tree: PropTypes.shape(NodeObject),
-    onNodeSelection: PropTypes.func.isRequired,
+    root: PropTypes.shape(NodeObject),
+    onSelectNode: PropTypes.func.isRequired,
     selectedNode: PropTypes.number,
-    isProcessing: PropTypes.bool.isRequired,
 };
 
 export default Organization;

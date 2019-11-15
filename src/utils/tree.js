@@ -1,32 +1,41 @@
-const Tree = {
-    getBasicTree(node) {
-        return {
-            ...node,
-            children: [],
-            depth: 0,
-            height: 0,
-        };
-    },
-    markNodeAsLeaf(tree, nodeId) {
-        return this.updateTreeBFS(tree, nodeId, (nodeFound) => { nodeFound.leaf = true; });
-    },
-    toggleNodeActive(tree, nodeId) {
-        return this.updateTreeBFS(tree, nodeId, (nodeFound) => { nodeFound.active = !nodeFound.active; });
-    },
-    appendChildren(tree, parentId, children) {
-        return this.updateTreeBFS(tree, parentId, (nodeFound) => {
-            const childs = children.map(
-                (child) => ({ ...child, parent: nodeFound, depth: nodeFound.depth + 1 }),
-            );
-            nodeFound.children = childs;
+class Node {
+    parent = null;
+    children = [];
+    depth = 0;
+    height = 0;
+    data = null;
+    constructor(data) {
+        this.data = data;
+    }
+    add(node) {
+        this.children.push(node);
+    }
+    setParent(node) {
+        this.parent = node;
+    }
+    setDepth(value) {
+        this.depth = value;
+    }
+}
+
+class TreeService {
+    static create(data) {
+        return new Node(data);
+    }
+    static createChildNodes(node, children) {
+        return children.map((child) => {
+            const newNode = new Node(child);
+            newNode.setDepth(node.depth + 1);
+            newNode.setParent(node);
+            return newNode;
         });
-    },
-    findNodeAtTree(root, id) {
+    }
+    static findNode(tree, id) {
         const queue = [];
-        queue.push(root);
+        queue.push(tree);
         while (queue.length > 0) {
             const current = queue.shift();
-            if (current.id === id) {
+            if (current.data.id === id) {
                 return current;
             }
             if (current.children) {
@@ -34,40 +43,7 @@ const Tree = {
             }
         }
         return null;
-    },
-    updateTreeBFS(node, id, callback) {
-        const queue = [];
-        const newNode = { ...node };
-        queue.push(newNode);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.id === id) {
-                if (typeof callback === 'function') {
-                    callback(current);
-                }
-                break;
-            }
-            if (current.children) {
-                queue.push(...current.children);
-            }
-        }
-        return newNode;
-    },
-    traverseEachByBFS(root, callback) {
-        const queue = [];
-        const newNode = { ...root };
-        queue.push(newNode);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (typeof callback === 'function') {
-                callback(current);
-            }
-            if (current.children) {
-                queue.push(...current.children);
-            }
-        }
-        return newNode;
-    },
-};
+    }
+}
 
-export default Tree;
+export default TreeService;
