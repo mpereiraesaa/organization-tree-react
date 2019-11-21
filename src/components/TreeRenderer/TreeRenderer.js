@@ -18,16 +18,16 @@ const TreeRenderer = () => {
         const node = Tree.findNodeAtTree(root, id);
         const subordinatesAlreadyAdded = node.children && node.children.length > 0;
         let subordinates = subordinatesAlreadyAdded ? [...node.children] : [];
-        let newTree = Tree.toggleNodeActive(root, id);
+        let newTree = Tree.createNewTreeWithNodeActive(root, id);
         if (!node.leaf && !subordinatesAlreadyAdded) {
             setNodeProcessing(id);
             subordinates = await fetchData(
                 `https://2jdg5klzl0.execute-api.us-west-1.amazonaws.com/default/EmployeesChart-Api?manager=${id}`,
             );
             if (subordinates.length > 0) {
-                newTree = Tree.appendChildren(newTree, id, subordinates);
+                newTree = Tree.createNewTreeWithChildren(newTree, id, subordinates);
             } else {
-                newTree = Tree.markNodeAsLeaf(newTree, id);
+                newTree = Tree.createNewTreeWithNodeAsLeaf(newTree, id);
             }
         }
         setRoot(newTree);
@@ -38,7 +38,7 @@ const TreeRenderer = () => {
             'https://2jdg5klzl0.execute-api.us-west-1.amazonaws.com/default/EmployeesChart-Api?manager=0',
         );
         if (data[0]) {
-            setRoot(Tree.getBasicTree(data[0]));
+            setRoot(Tree.createNewTree(data[0]));
             setLoading(false);
         }
     };
