@@ -17,6 +17,8 @@
         "no-param-reassign": "off",
         "no-underscore-dangle": "off",
         "max-len": ["error", { "code": 140 }],
+        "lines-between-class-members": "off",
+        "max-classes-per-file": "off",
         "object-curly-newline": ["off", "never"]
     }
 }

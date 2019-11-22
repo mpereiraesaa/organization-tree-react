@@ -1,41 +1,31 @@
-class Node {
-    parent = null;
-    children = [];
-    depth = 0;
-    height = 0;
-    data = null;
-    constructor(data) {
-        this.data = data;
-    }
-    add(node) {
-        this.children.push(node);
-    }
-    setParent(node) {
-        this.parent = node;
-    }
-    setDepth(value) {
-        this.depth = value;
-    }
-}
-
-class TreeService {
-    static create(data) {
-        return new Node(data);
-    }
-    static createChildNodes(node, children) {
-        return children.map((child) => {
-            const newNode = new Node(child);
-            newNode.setDepth(node.depth + 1);
-            newNode.setParent(node);
-            return newNode;
+const Tree = {
+    createNewTree(node) {
+        return {
+            ...node,
+            children: [],
+            depth: 0,
+        };
+    },
+    createNewTreeWithNodeAsLeaf(tree, nodeId) {
+        return this.createNewTreeWithUpdate(tree, nodeId, (nodeFound) => { nodeFound.leaf = true; });
+    },
+    createNewTreeWithNodeActive(tree, nodeId) {
+        return this.createNewTreeWithUpdate(tree, nodeId, (nodeFound) => { nodeFound.active = !nodeFound.active; });
+    },
+    createNewTreeWithChildren(tree, parentId, children) {
+        return this.createNewTreeWithUpdate(tree, parentId, (parent) => {
+            const childs = children.map(
+                (child) => ({ ...child, children: [], parent, depth: parent.depth + 1 }),
+            );
+            parent.children = childs;
         });
-    }
-    static findNode(tree, id) {
+    },
+    findNode(tree, id) {
         const queue = [];
         queue.push(tree);
         while (queue.length > 0) {
             const current = queue.shift();
-            if (current.data.id === id) {
+            if (current.id === id) {
                 return current;
             }
             if (current.children) {
@@ -43,7 +33,25 @@ class TreeService {
             }
         }
         return null;
-    }
-}
+    },
+    createNewTreeWithUpdate(node, id, callback) {
+        const queue = [];
+        const newNode = { ...node };
+        queue.push(newNode);
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (current.id === id) {
+                if (typeof callback === 'function') {
+                    callback(current);
+                }
+                break;
+            }
+            if (current.children) {
+                queue.push(...current.children);
+            }
+        }
+        return newNode;
+    },
+};
 
-export default TreeService;
+export default Tree;
