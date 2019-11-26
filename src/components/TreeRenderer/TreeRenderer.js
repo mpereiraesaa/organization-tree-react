@@ -103,9 +103,9 @@ const TreeRenderer = () => {
                 <Grid.Row>
                     <Grid.Column>
                         <Header as="h2">
-                          Big corp chart
+                          React organization graph chart
                             <Header.Subheader>
-                            Visualize the hierarchy inside this big corp by clicking members of this organization.
+                                <p>Visualize the organization hierarchy using a graph drawn with SVG and allows adding of nodes by calling an API after clicking in a node.</p>
                             </Header.Subheader>
                         </Header>
                         {!isLoading && (
