@@ -1,3 +1,7 @@
 .tree-container .ui.icon.button {
     margin-bottom: 1em;
 }
+
+.svg-container {
+    border: 1px solid #ccc;
+}

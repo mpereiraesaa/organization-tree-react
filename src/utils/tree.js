@@ -34,10 +34,10 @@ const Tree = {
         }
         return null;
     },
-    createNewTreeWithUpdate(node, id, callback) {
+    createNewTreeWithUpdate(tree, id, callback) {
         const queue = [];
-        const newNode = { ...node };
-        queue.push(newNode);
+        const newTree = { ...tree };
+        queue.push(newTree);
         while (queue.length > 0) {
             const current = queue.shift();
             if (current.id === id) {
@@ -50,7 +50,7 @@ const Tree = {
                 queue.push(...current.children);
             }
         }
-        return newNode;
+        return newTree;
     },
 };
 

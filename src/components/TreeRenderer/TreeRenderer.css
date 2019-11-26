@@ -9,3 +9,7 @@
 .accordion.ui.styled {
     padding-bottom: 0;
 }
+
+body, html {
+    height: initial;
+}

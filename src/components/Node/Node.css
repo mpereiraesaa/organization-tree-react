@@ -2,3 +2,10 @@
     width: 100%;
     padding-bottom: 1em;
 }
+
+.circle-node {
+    fill: rgb(247, 106, 214);
+    stroke: rgb(184, 37, 81);
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
