@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { easeQuadOut } from 'd3-ease';
+import { areNodesSame, areLinksSame, calculateNewValue } from '../../utils/svg';
 import Node from '../Node/Node';
 import NodeLink from '../NodeLink/NodeLink';
 import './Organization.css';
 
 const Organization = (props) => {
-    const { selectedNode, onSelectNode, isProcessing, getChildren, margins } = props;
+    const { onSelectNode, getChildren, margins, height } = props;
     const prevPropsRef = useRef();
     const animationRef = useRef();
     const steps = 20;
@@ -20,9 +20,7 @@ const Organization = (props) => {
             target: { ...l.target, x: initialX, y: initialY },
         })),
     });
-    const areNodesSame = (a, b) => a.data.id === b.data.id;
-    const areLinksSame = (a, b) => a.source.data.id === b.source.data.id && a.target.data.id === b.target.data.id;
-    const calculateNewValue = (start, end, interval) => start + (end - start) * easeQuadOut(interval);
+
 
     useEffect(() => {
         const getClosestAncestor = (node, stateWithNode, stateWithoutNode) => {
@@ -118,7 +116,7 @@ const Organization = (props) => {
     }, [props.nodes, props.links]);
 
     return (
-        <svg className="svg-container" height={props.height} width="100%">
+        <svg className="svg-container" height={height} width="100%">
             <g transform={`translate(${margins.left + margins.right},${margins.top})`}>
                 {treeMap.links.map((link) => (
                     <NodeLink
@@ -149,21 +147,12 @@ const Organization = (props) => {
     );
 };
 
-// <Node
-//     key={root.id}
-//     onChildrenRender={renderChildren}
-//     node={root}
-//     isProcessing={isProcessing}
-//     selectedNode={selectedNode}
-// />
-
 Organization.propTypes = {
     links: PropTypes.arrayOf(PropTypes.object).isRequired,
     nodes: PropTypes.arrayOf(PropTypes.object).isRequired,
     onSelectNode: PropTypes.func.isRequired,
     selectedNode: PropTypes.number,
     isProcessing: PropTypes.bool,
-    width: PropTypes.number,
     height: PropTypes.number,
     margins: PropTypes.shape({
         left: PropTypes.number,

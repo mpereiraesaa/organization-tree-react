@@ -38,7 +38,6 @@ const TreeMap = (props) => {
             isProcessing={isProcessing}
             getChildren={getChildren}
             margins={margins}
-            width={width + margins.left + margins.right}
             height={height + margins.top + margins.bottom}
         />
     );
