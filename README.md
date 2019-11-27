@@ -1,8 +1,17 @@
-# This is an implementation of an organization tree model, drawn as a Graph using SVG and React hooks.
+<!--
+  Title: Organization Tree React
+  Description: Is an implementation of an organization tree model, drawn as a Graph using SVG and React hooks.
+  Author: Manuel Pereira
+-->
+
+Is an implementation of an organization tree model, drawn as a Graph using SVG and React hooks.
+================
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+[demo](https://mpereiraesaa.github.io/organization-tree-react/)
+
+### Available Scripts
 
 In the project directory, you can run:
 
